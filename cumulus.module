@@ -199,7 +199,7 @@ function theme_cumulus_weighted($variables) {
     // assign font size
     $font_size = (intval($term->weight) * $config['flash_font_size_interval']) + ($config['flash_font_size'] - $config['flash_font_size_interval']);
     $uri = taxonomy_term_uri($term);
-    $output .= l($term->name, $uri['path'], array('attributes' => array('style' => '"font-size: ' . $font_size . 'px;"'))) . " \n";
+    $output .= l($term->name, $uri['path'], array('absolute' => TRUE, 'attributes' => array('style' => '"font-size: ' . $font_size . 'px;"'))) . " \n";
   }
   $output .= '</tags>';
   $output = urlencode($output);
