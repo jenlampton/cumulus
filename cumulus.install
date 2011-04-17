@@ -18,7 +18,7 @@ function cumulus_uninstall() {
 /**
  * Migrate Cumulus settings, add the old cumulus block again.
  */
-function cumulus_update_7005(&$sandbox) {
+function cumulus_update_7000(&$sandbox) {
   variable_set('cumulus_ids', array(1));
   cumulus_block_save(1, cumulus_default_config());
   db_update('block')
