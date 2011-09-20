@@ -29,15 +29,6 @@ function _cumulus_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'cumulus.admin.inc',
   );
-  $items['admin/config/user-interface/menu-block'] = array(
-    'title' => 'Cumulus block',
-    'description' => 'Configure cumulus block.',
-    'access arguments' => array('administer blocks'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cumulus_admin_settings_form'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'cumulus.admin.inc',
-  );
   return $items;
 }
 
