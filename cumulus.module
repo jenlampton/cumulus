@@ -127,7 +127,7 @@ function cumulus_block_view($delta) {
     drupal_add_js($js, array('preprocess' => FALSE));
   }
   else {
-    drupal_set_message(t('The file @folder is missing. Please download it from !link, and add it to the Cumulus module folder!', array('@folder' => $js, '!link' => l('http://pratul.in/files/cumulus.js', 'http://pratul.in/files/cumulus.js'))), 'error');
+    drupal_set_message(t('The file @folder is missing. Please download swfobject v1.x and add it to the Cumulus module folder! Download links are listed in the README.txt', array('@folder' => $js)), 'error');
   }
   if (!$config['vid']) {
     drupal_set_message(t('You haven\'t yet configured and saved the Cumulus settings on !link. Cumulus might not work properly!', array('!link' => l('your blocks configuration page', 'admin/structure/block/configure/cumulus/0'))), 'warning');
