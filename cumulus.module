@@ -41,7 +41,7 @@ function cumulus_get_config($delta = NULL) {
       // Flag the block as exported.
       $config['exported_to_code'] = TRUE;
     }
-    
+
     foreach(array_keys(cumulus_default_config()) as $paramter) {
       $config[$paramter] = cumulus_variable_get($paramter, $delta, $config[$paramter]);
     }
@@ -148,7 +148,7 @@ function cumulus_block_view($delta) {
   if ($config['flash_transparency'] == 'true') {
     $param['transparency'] = 'widget_so.addParam("wmode", "transparent");';
   }
-  
+
   // link to view with additional tags
   $links['more'] = l(t('more tags'), 'tagadelic/chunk/' . $config['vid']);
   // output content
