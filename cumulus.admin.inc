@@ -123,15 +123,6 @@ function cumulus_delete_submit($form, &$form_state) {
 /**
  * Implements hook_block_configure().
  */
-function _cumulus_block_configure($delta = '') {
-  // Create a pseudo form state.
-  $form_state = array('values' => cumulus_get_config($delta));
-  return cumulus_configure_form(array(), $form_state);
-}
-
-/**
- * Implements hook_block_configure().
- */
 function cumulus_configure_form($form, &$form_state) {
   $config = array();
   // Get the config from the form state.

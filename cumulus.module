@@ -115,8 +115,9 @@ function cumulus_block_info() {
  * Implements hook_block_configure().
  */
 function cumulus_block_configure($delta = '') {
-  module_load_include('inc', 'cumulus', 'cumulus.admin');
-  return _cumulus_block_configure($delta);
+  // Create a pseudo form state.
+  $form_state = array('values' => cumulus_get_config($delta));
+  return cumulus_configure_form(array(), $form_state);
 }
 
 /**
