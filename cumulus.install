@@ -4,3 +4,11 @@
  * The install file for cumulus.module
  */
 
+/**
+ * Delete unused variables. Convert necessary variables to config.
+ */
+function cumulus_update_1000() {
+  update_variable_del('cumulus_ids');
+  update_variable_del('cumulus_info');
+  update_variable_del('cumulus_vid');
+}

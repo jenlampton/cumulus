@@ -23,176 +23,58 @@ function cumulus_admin_settings($form, &$form_state) {
 }
 
 /**
- * Menu callback: display the cumulus block addition form.
- *
- * @see cumulus_add_block_form_submit()
- */
-function cumulus_add_block_form($form, &$form_state) {
-  module_load_include('inc', 'block', 'block.admin');
-  return block_admin_configure($form, $form_state, 'cumulus', NULL);
-}
-
-/**
- * Save the new cumulus block.
- */
-function cumulus_add_block_form_submit($form, &$form_state) {
-  // Determine the delta of the new block.
-  $block_ids = variable_get('cumulus_ids', array());
-  $delta = empty($block_ids) ? 1 : max($block_ids) + 1;
-
-  // Save the new array of blocks IDs.
-  $block_ids[] = $delta;
-  variable_set('cumulus_ids', $block_ids);
-
-  // Save the block configuration.
-  _cumulus_block_save($delta, $form_state['values']);
-
-  // Run the normal new block submission (borrowed from block_add_block_form_submit).
-  $query = db_insert('block')->fields(array('visibility', 'pages', 'custom', 'title', 'module', 'theme', 'region', 'status', 'weight', 'delta', 'cache'));
-  foreach (list_themes() as $key => $theme) {
-    if ($theme->status) {
-      $region = !empty($form_state['values']['regions'][$theme->name]) ? $form_state['values']['regions'][$theme->name] : BLOCK_REGION_NONE;
-      $query->values(array(
-        'visibility' => (int) $form_state['values']['visibility'],
-        'pages' => trim($form_state['values']['pages']),
-        'custom' => (int) $form_state['values']['custom'],
-        'title' => $form_state['values']['title'],
-        'module' => $form_state['values']['module'],
-        'theme' => $theme->name,
-        'region' => ($region == BLOCK_REGION_NONE ? '' : $region),
-        'status' => 0,
-        'status' => (int) ($region != BLOCK_REGION_NONE),
-        'weight' => 0,
-        'delta' => $delta,
-        'cache' => DRUPAL_NO_CACHE,
-      ));
-    }
-  }
-  $query->execute();
-
-  $query = db_insert('block_role')->fields(array('rid', 'module', 'delta'));
-  foreach (array_filter($form_state['values']['roles']) as $rid) {
-    $query->values(array(
-      'rid' => $rid,
-      'module' => $form_state['values']['module'],
-      'delta' => $delta,
-    ));
-  }
-  $query->execute();
-
-  drupal_set_message(t('The block has been created.'));
-  cache_clear_all();
-  $form_state['redirect'] = 'admin/structure/block';
-}
-
-/**
- * Menu callback: confirm deletion of cumulus blocks.
- */
-function cumulus_delete($form, &$form_state, $delta = 0) {
-  $config = cumulus_get_config($delta);
-  $title = check_plain($config['info']);
-  $form['block_title'] = array('#type' => 'hidden', '#value' => $title);
-  $form['delta'] = array('#type' => 'hidden', '#value' => $delta);
-
-  return confirm_form($form, t('Are you sure you want to delete the "%name" block?', array('%name' => $title)), 'admin/structure/block', NULL, t('Delete'), t('Cancel'));
-}
-
-/**
- * Deletion of cumulus blocks.
- */
-function cumulus_delete_submit($form, &$form_state) {
-  // Remove the cumulus block configuration variables.
-  $delta = $form_state['values']['delta'];
-  $block_ids = variable_get('cumulus_ids', array());
-  unset($block_ids[array_search($delta, $block_ids)]);
-  sort($block_ids);
-
-  foreach(array_keys(cumulus_default_config()) as $parameter) {
-    cumulus_variable_del($parameter, $delta);
-  }
-
-  variable_set('cumulus_ids', $block_ids);
-
-  db_delete('block')
-    ->condition('module', 'cumulus')
-    ->condition('delta', $delta)
-    ->execute();
-  db_delete('block_role')
-    ->condition('module', 'cumulus')
-    ->condition('delta', $delta)
-    ->execute();
-  drupal_set_message(t('The block "%name" has been removed.', array('%name' => $form_state['values']['block_title'])));
-  cache_clear_all();
-  $form_state['redirect'] = 'admin/structure/block';
-  return;
-}
-
-/**
  * Implements hook_block_configure().
  */
-function cumulus_configure_form($form, &$form_state) {
-  $config = array();
-  // Get the config from the form state.
-  if (!empty($form_state['values'])) {
-    $config = $form_state['values'];
-  }
+function cumulus_configure_form($form, $settings) {
+  $config = $settings;
+
   // Merge in the default configuration.
-  $config += cumulus_get_config();
+  $config += cumulus_default_config();
 
-  $form['info'] = array(
-     '#type' => 'textfield',
-     '#title' => t('Block description'),
-     '#default_value' => $config['info'],
-     '#maxlength' => 64,
-     '#description' => t('A brief description of your block. Used on the <a href="@overview">Blocks administration page</a>.', array('@overview' => url('admin/structure/block'))),
-     '#required' => TRUE,
-     '#weight' => -19,
-   );
-
-  $form['vid'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Vocabulary IDs to be included'),
-    '#default_value' => $config['vid'],
-    '#maxlength' => 10,
-    '#description' => t('The IDs of the vocabularies that will be displayed. Separate the IDs by commas only (eg: 1, 3, 4)'),
+  $vocab_options = array();
+  foreach (taxonomy_vocabulary_load_multiple(FALSE) as $machine => $vocab) {
+    $vocab_options[$machine] = check_plain($vocab->name);
+  }
+  $form['vocabs'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Vocabularies to include'),
+    '#options' => $vocab_options,
+    '#default_value' => $config['vocabs'],
   );
 
   $form['tagadelic_step'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Tag size interval'),
     '#default_value' => $config['tagadelic_step'],
-    '#maxlength' => 2,
     '#description' => t('The number of tag sizes you want to use.'),
   );
 
   $form['tagadelic_limit'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Number of tags to display'),
     '#default_value' => $config['tagadelic_limit'],
-    '#maxlength' => 2,
     '#description' => t('The maximum number of tags that will be displayed.'),
   );
 
   $form['flash_width'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Width of cumulus'),
     '#default_value' => $config['flash_width'],
-    '#maxlength' => 3,
-    '#description' => t('The width of the cumulus in pixels.'),
+
   );
 
   $form['flash_height'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Height of cumulus'),
     '#default_value' => $config['flash_height'],
-    '#maxlength' => 3,
-    '#description' => t('The height of the cumulus in pixels.'),
+    '#field_suffix' => t('pixels'),
   );
 
   $form['flash_background'] = array(
     '#type' => 'textfield',
     '#title' => t('Background color of cumulus'),
     '#default_value' => $config['flash_background'],
+    '#field_prefix' => '#',
     '#maxlength' => 6,
     '#description' => t('The hex color value for the background of the cumulus. E.g. ffffff. If "Background transparency" is enabled, this option will have no effect.'),
   );
@@ -205,13 +87,14 @@ function cumulus_configure_form($form, &$form_state) {
       'false' => t('no'),
       'true' => t('yes'),
     ),
-    '#description' => t('Enabling background transparency might cause issues with some (mostly older) browsers.<br />Under Linux, transparency doesn\'t work at all due to a known limitation in the current Flash player.'),
+    '#description' => t('Enabling background transparency might cause issues with some (mostly older) browsers. Under Linux, transparency doesn\'t work at all due to a known limitation in the current Flash player.'),
   );
 
   $form['flash_color'] = array(
     '#type' => 'textfield',
     '#title' => t('Font color of cumulus'),
     '#default_value' => $config['flash_color'],
+    '#field_prefix' => '#',
     '#maxlength' => 6,
     '#description' => t('The hex color value you would like to use for the tags. E.g. 000000.'),
   );
@@ -220,6 +103,7 @@ function cumulus_configure_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Second font color of cumulus'),
     '#default_value' => $config['flash_color2'],
+    '#field_prefix' => '#',
     '#maxlength' => 6,
     '#description' => t('Second tag color. If supplied, tags will get a color from a gradient between both colors based on their popularity.'),
   );
@@ -228,12 +112,13 @@ function cumulus_configure_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Highlight color of cumulus'),
     '#default_value' => $config['flash_hicolor'],
+    '#field_prefix' => '#',
     '#maxlength' => 6,
     '#description' => t('The hex color value you would like to use for the tag mouseover/hover color'),
   );
 
   $form['flash_speed'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Rotation speed'),
     '#default_value' => $config['flash_speed'],
     '#maxlength' => 3,
@@ -252,14 +137,14 @@ function cumulus_configure_form($form, &$form_state) {
   );
 
   $form['flash_font_size'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Font size'),
     '#default_value' => $config['flash_font_size'],
     '#maxlength' => 2,
     '#description' => t('Set the font size of the tag with the lowest tag-size in pixels (level 1).'),
   );
   $form['flash_font_size_interval'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Font size interval'),
     '#default_value' => $config['flash_font_size_interval'],
     '#maxlength' => 1,
