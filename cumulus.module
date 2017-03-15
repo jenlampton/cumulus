@@ -121,14 +121,6 @@ function cumulus_block_configure($delta = '') {
 }
 
 /**
- * Implements hook_block_save().
- */
-function cumulus_block_save($delta = '', $edit = array()) {
-  module_load_include('inc', 'cumulus', 'cumulus.admin');
-  return _cumulus_block_save($delta, $edit);
-}
-
-/**
  * Implements hook_form_block_admin_display_form_alter().
  */
 function cumulus_form_block_admin_display_form_alter(&$form, $form_state) {

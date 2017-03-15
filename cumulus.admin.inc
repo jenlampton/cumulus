@@ -261,18 +261,3 @@ function cumulus_configure_form($form, &$form_state) {
 
   return $form;
 }
-
-/**
- * Implements hook_block_save().
- */
-function _cumulus_block_save($delta = '', $edit = array()) {
-  if (!empty($delta)) {
-    // Don't save values for an exported block.
-    $config = cumulus_get_config($delta);
-    if (empty($config['exported_to_code'])) {
-      foreach(array_keys(cumulus_default_config()) as $parameter) {
-        cumulus_variable_set($parameter, $delta, $edit[$parameter]);
-      }
-    }
-  }
-}
