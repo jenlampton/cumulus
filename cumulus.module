@@ -1,18 +1,9 @@
 <?php
 /**
  * @file
- * The brain of Cumulus.
- *
  * Provides a Flash-based 3D tag cloud.
  * Based on WP-Cumulus for WordPress, by Roy Tanck.
  */
-
-/**
- * Implements hook_enable().
- */
-function cumulus_enable() {
-  drupal_set_message(t('Cumulus has now been enabled. You need to !configure the Cumulus block settings before you use it.', array('!configure' => l(t('configure and save'), 'admin/structure/block'))));
-}
 
 /**
  * Returns the configuration for the requested block delta.
