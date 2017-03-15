@@ -67,18 +67,6 @@ function cumulus_add_block_form_submit($form, &$form_state) {
 }
 
 /**
- * Alters the block admin form to add delete links next to cumulus blocks.
- */
-function _cumulus_form_block_admin_display_form_alter(&$form, $form_state) {
-  $blocks = module_invoke_all('cumulus_blocks');
-  foreach (variable_get('cumulus_ids', array()) AS $delta) {
-    if (empty($blocks[$delta])) {
-      $form['blocks']['cumulus_' . $delta]['delete'] = array('#type' => 'link', '#title' => t('delete'), '#href' => 'admin/structure/block/delete-cumulus-block/' . $delta);
-    }
-  }
-}
-
-/**
  * Menu callback: confirm deletion of cumulus blocks.
  */
 function cumulus_delete($form, &$form_state, $delta = 0) {
