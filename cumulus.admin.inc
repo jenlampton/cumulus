@@ -4,6 +4,25 @@
  */
 
 /**
+ * Implements hook_settings().
+ */
+function cumulus_admin_settings($form, &$form_state) {
+  $form['#config'] = 'cumulus.settings';
+  $form['settings'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Clear the Cumulus cache'),
+    '#description' => t('If you see older terms, or are unable to see terms from newly added vocabularies, try clearing the cache.<br />This will only clear the Cumulus related data from the cache. It will not clear the full Drupal cache.'),
+  );
+  $form['settings']['clear_cache'] = array(
+    '#type' => 'submit',
+    '#value' => t('Click to clear'),
+    '#submit' => array('cumulus_clear_cache'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
  * Menu callback: display the cumulus block addition form.
  *
  * @see cumulus_add_block_form_submit()
