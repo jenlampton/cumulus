@@ -1,36 +1,7 @@
 <?php
-
 /**
  * Implements hook_menu().
  */
-function _cumulus_menu() {
-  $items['admin/config/cumulus'] = array(
-    'title' => 'Cumulus',
-    'description' => 'Cumulus settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cumulus_admin_settings'),
-    'access arguments' => array('administer cumulus'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $items['admin/structure/block/add-cumulus-block'] = array(
-    'title' => 'Add cumulus block',
-    'description' => 'Add a new cumulus block.',
-    'access arguments' => array('administer blocks'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cumulus_add_block_form'),
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'cumulus.admin.inc',
-  );
-  $items['admin/structure/block/delete-cumulus-block'] = array(
-    'title' => 'Delete cumulus block',
-    'access arguments' => array('administer blocks'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('cumulus_delete'),
-    'type' => MENU_CALLBACK,
-    'file' => 'cumulus.admin.inc',
-  );
-  return $items;
-}
 
 /**
  * Menu callback: display the cumulus block addition form.
