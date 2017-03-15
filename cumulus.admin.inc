@@ -121,23 +121,6 @@ function cumulus_delete_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_block_info().
- */
-function _cumulus_block_info() {
-  $blocks = array();
-  $deltas = variable_get('cumulus_ids', array());
-  foreach (array_keys(module_invoke_all('cumulus_blocks')) as $delta) {
-    $deltas[] = $delta;
-  }
-  foreach ($deltas AS $delta) {
-    $config = cumulus_get_config($delta);
-    $blocks[$delta]['info'] = check_plain($config['info']);
-    $blocks[$delta]['cache'] = DRUPAL_NO_CACHE;
-  }
-  return $blocks;
-}
-
-/**
  * Implements hook_block_configure().
  */
 function _cumulus_block_configure($delta = '') {
