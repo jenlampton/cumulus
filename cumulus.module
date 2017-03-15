@@ -155,16 +155,9 @@ function cumulus_block_view($delta) {
   $tags_formatted_flash = theme('cumulus_weighted', array('terms' => $tags, 'config' => $config));
   $tags_formatted_alt = theme('tagadelic_weighted', array('terms' => $tags));
 
-  $js = drupal_get_path('module', 'cumulus') . '/cumulus.js';
-  if (file_exists($js)) {
-    drupal_add_js($js, array('preprocess' => FALSE));
-  }
-  else {
-    drupal_set_message(t('The file @folder is missing. Please download swfobject v1.x and add it to the Cumulus module folder! Download links are listed in the README.txt', array('@folder' => $js)), 'error');
-  }
-  if (!$config['vid']) {
-    drupal_set_message(t('You haven\'t yet configured and saved the Cumulus settings on !link. Cumulus might not work properly!', array('!link' => l('your blocks configuration page', 'admin/structure/block/configure/cumulus/0'))), 'warning');
-  }
+  $js = drupal_get_path('module', 'cumulus') . '/js/cumulus.js';
+  drupal_add_js($js, array('preprocess' => FALSE));
+
   // Flash params
   $param = array(
     'path_to_flash' => base_path() . drupal_get_path('module', 'cumulus') . '/cumulus.swf',
